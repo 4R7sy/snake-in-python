@@ -6,36 +6,56 @@ pygame.init()
 pygame.display.set_caption("Snake")
 width, height = 900, 600
 display = pygame.display.set_mode((width, height))
-clock = pygame.time.Clock
+oClock = pygame.time.Clock()  
 
 # RGB Colors
 black = (0, 0, 0)
 green = (0, 255, 0)
 
-# Smake Parameters
+# Snake Parameters
 snakeHeight = 10
 snakeSpeed = 15
 
-def foodGenerator():
-    foodX = random.randint(0, 900)
-    foodY = random.randint(0, 600)
-    return foodX, foodY
+def foodGenerator(pixels):
+    while True:
+        foodX = random.randint(0, (width - snakeHeight) // snakeHeight) * snakeHeight
+        foodY = random.randint(0, (height - snakeHeight) // snakeHeight) * snakeHeight
+        if (foodX, foodY) not in pixels:  # Verifica se a comida não colide com a cobra
+            return foodX, foodY
+
+def drawFood(x, y):
+    pygame.draw.rect(display, green, [x, y, snakeHeight, snakeHeight])  
+
+def drawPoints(points):
+    font = pygame.font.SysFont("Helvetica", 40)
+    text = font.render("Your Points: {}".format(points), True, green)  
+    display.blit(text, [1, 1])
+
+def speedSelect(keys):
+    speedX, speedY = 0, 0  
+    if keys == pygame.K_DOWN:
+        speedX, speedY = 0, 1
+    if keys == pygame.K_UP:
+        speedX, speedY = 0, -1
+    if keys == pygame.K_LEFT:
+        speedX, speedY = -1, 0
+    if keys == pygame.K_RIGHT:
+        speedX, speedY = 1, 0
+    return speedX, speedY
 
 def playGame():
     gameOver = False
 
-    x = width / 2
-    y = height / 2
+    x = width // 2
+    y = height // 2
 
     speedX = 0
     speedY = 0
 
-    snake = 1
+    snakeLength = 1  
     pixels = []
 
-    foodX, foodY = foodGenerator()
-
-
+    foodX, foodY = foodGenerator(pixels)  # Passa a lista de pixels para a função
 
     while not gameOver:
         display.fill(black)
@@ -43,10 +63,42 @@ def playGame():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameOver = True
-# Infinite Loop
+            elif event.type == pygame.KEYDOWN:
+                speedX, speedY = speedSelect(event.key)
 
-# Draw the Game Objects
+        drawFood(foodX, foodY)  
 
-# Creating the Logic
+        def drawSnake(height, pixels):
+            for pixel in pixels:  
+                pygame.draw.rect(display, green, [pixel[0], pixel[1], height, height])
+        
+        # Atualiza a posição da cobra
+        x += speedX * snakeHeight
+        y += speedY * snakeHeight
+
+        # Verifica colisão com a comida
+        if x == foodX and y == foodY:  
+            snakeLength += 1  
+            foodX, foodY = foodGenerator(pixels)  # Gera nova comida, passando a lista de pixels
+
+        # Adiciona nova posição da cobra
+        pixels.append((x, y))  
+        if len(pixels) > snakeLength:  
+            del pixels[0]
+
+        # Verifica colisão com as bordas
+        if x < 0 or x >= width or y < 0 or y >= height:  
+            gameOver = True  
+
+        # Verifica colisão com a própria cobra
+        for pixel in pixels[:-1]:
+            if pixel == (x, y): 
+                gameOver = True  
+
+        drawSnake(snakeHeight, pixels)
+        drawPoints(snakeLength - 1)  
+
+        pygame.display.update()
+        oClock.tick(snakeSpeed)
 
 playGame()
