@@ -20,7 +20,7 @@ def foodGenerator(pixels):
     while True:
         foodX = random.randint(0, (width - snakeHeight) // snakeHeight) * snakeHeight
         foodY = random.randint(0, (height - snakeHeight) // snakeHeight) * snakeHeight
-        if (foodX, foodY) not in pixels:  # Verifica se a comida não colide com a cobra
+        if (foodX, foodY) not in pixels:  
             return foodX, foodY
 
 def drawFood(x, y):
@@ -55,7 +55,7 @@ def playGame():
     snakeLength = 1  
     pixels = []
 
-    foodX, foodY = foodGenerator(pixels)  # Passa a lista de pixels para a função
+    foodX, foodY = foodGenerator(pixels)  
 
     while not gameOver:
         display.fill(black)
@@ -72,25 +72,25 @@ def playGame():
             for pixel in pixels:  
                 pygame.draw.rect(display, green, [pixel[0], pixel[1], height, height])
         
-        # Atualiza a posição da cobra
+       
         x += speedX * snakeHeight
         y += speedY * snakeHeight
 
-        # Verifica colisão com a comida
+       
         if x == foodX and y == foodY:  
             snakeLength += 1  
-            foodX, foodY = foodGenerator(pixels)  # Gera nova comida, passando a lista de pixels
+            foodX, foodY = foodGenerator(pixels)  
 
-        # Adiciona nova posição da cobra
+        
         pixels.append((x, y))  
         if len(pixels) > snakeLength:  
             del pixels[0]
 
-        # Verifica colisão com as bordas
+       
         if x < 0 or x >= width or y < 0 or y >= height:  
             gameOver = True  
 
-        # Verifica colisão com a própria cobra
+       
         for pixel in pixels[:-1]:
             if pixel == (x, y): 
                 gameOver = True  
